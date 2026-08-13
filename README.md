@@ -4,8 +4,8 @@ Projet de fin d'étape — ESMT Dakar, Département Recherche et Innovation (DRI
 
 ## Équipe
 
-- **Étudiant A — Réseau & Orchestration** : déploiement 5GC, RAN/UE simulés
-- **Étudiant B — Infrastructure & Modélisation** : virtualisation, orchestration, dimensionnement
+- **Étudiant A(Hamidou SAMAKE): Réseau & Orchestration** : déploiement 5GC, RAN/UE simulés
+- **Étudiant B(Cheick Abdoul Aziz BOUGOUM): Infrastructure & Modélisation** : virtualisation, orchestration, dimensionnement
 
 ## Objectif
 
