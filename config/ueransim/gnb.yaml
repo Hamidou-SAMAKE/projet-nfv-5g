@@ -1,0 +1,31 @@
+# config/ueransim/gnb.yaml
+# Configuration du gNB simulé (UERANSIM). Les placeholders __AMF_IP__ et
+# __GNB_IP__ sont substitués au moment du déploiement par
+# scripts/deploiement/04-deploy-ueransim.sh (voir ce script et
+# docs/architecture/choix-deploiement-docker.md pour le pourquoi du __GNB_IP__
+# séparé de l'IP du 5GC).
+#
+# PLMN 001/01 : valeur imposée par la config AMF du déploiement "basic"
+# (vendor/docker-open5gs/configs/basic/amf.yaml), PAS la valeur par défaut
+# 999/70 des exemples UERANSIM. Le slice exige SST=1 ET SD=1 (l'AMF de ce
+# dépôt configure sd:1, pas seulement sst:1).
+
+mcc: '001'
+mnc: '01'
+nci: '0x000000010'
+idLength: 32
+tac: 1
+
+linkIp: __GNB_IP__
+ngapIp: __GNB_IP__
+gtpIp: __GNB_IP__
+
+amfConfigs:
+  - address: __AMF_IP__
+    port: 38412
+
+slices:
+  - sst: 1
+    sd: 1
+
+ignoreStreamIds: true

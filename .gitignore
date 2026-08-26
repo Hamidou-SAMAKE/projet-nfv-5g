@@ -1,0 +1,26 @@
+# Secrets / config sensible
+*.env
+**/secrets/
+
+# Outils tiers clonés par les scripts de déploiement (reproductibles, pas versionnés)
+vendor/
+
+# Données volumineuses de mesure (à gérer via Git LFS si besoin)
+modele/donnees/raw/*
+!modele/donnees/raw/.gitkeep
+
+# Build LaTeX
+rapport/*.aux
+rapport/*.log
+rapport/*.pdf
+rapport/*.out
+rapport/*.toc
+
+# Divers
+.DS_Store
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+node_modules/
