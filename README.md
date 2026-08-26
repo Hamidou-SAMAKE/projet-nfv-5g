@@ -4,8 +4,8 @@ Projet de fin d'étape — ESMT Dakar, Département Recherche et Innovation (DRI
 
 ## Équipe
 
-- **Étudiant·e A — Réseau & Orchestration** : déploiement 5GC, RAN/UE simulés
-- **Étudiant·e B — Infrastructure & Modélisation** : virtualisation, orchestration, dimensionnement
+- **Étudiant A (Hamidou SAMAKE): Réseau & Orchestration** : déploiement 5GC, RAN/UE simulés
+- **Étudiant B (Cheick Abdoul Aziz BOUGOUM): Infrastructure & Modélisation** : virtualisation, orchestration, dimensionnement
 
 ## Objectif
 
@@ -33,16 +33,6 @@ pour le détail des ports et flux requis.
 
 ## Structure du dépôt
 
-```
-docs/          documentation (cadrage, architecture, synthèses)
-scripts/       scripts de déploiement, infrastructure, mesures
-config/        fichiers de configuration Open5GS, UERANSIM, K8s, OSM
-monitoring/    configuration Prometheus/Grafana
-modele/        notebooks et données de la modélisation analytique
-rapport/       rapport technique et figures
-soutenance/    support de soutenance
-```
-
 ## Jalons
 
 | Jalon | Échéance | Statut |
@@ -56,14 +46,6 @@ soutenance/    support de soutenance
 ## Convention de commits
 
 Préfixe par auteur et type de changement, pour la traçabilité des contributions :
-
-```
-[A] feat: config initiale AMF/SMF
-[B] feat: manifeste K8s pour NRF
-[A+B] docs: mise à jour note de cadrage
-[B] fix: correction endpoint Prometheus
-```
-
 Extraction de la contribution d'un membre : `git log --grep="\[A\]"` ou `git log --grep="\[B\]"`.
 
 ## Documentation
