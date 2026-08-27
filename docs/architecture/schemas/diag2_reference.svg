@@ -1,0 +1,64 @@
+<svg width="850" height="320" viewBox="0 0 850 320" xmlns="http://www.w3.org/2000/svg" font-family="Arial, Helvetica, sans-serif">
+  <rect width="850" height="320" fill="#ffffff"/>
+  <text x="425" y="30" text-anchor="middle" font-size="18" font-weight="bold" fill="#1F4E79">Vue par points de référence — chemin d'une session PDU</text>
+
+  <!-- UE -->
+  <rect x="20" y="180" width="90" height="50" rx="8" fill="#6B7280" stroke="#374151" stroke-width="1.5"/>
+  <text x="65" y="210" text-anchor="middle" font-size="15" fill="#ffffff" font-weight="bold">UE</text>
+
+  <!-- gNB -->
+  <rect x="200" y="180" width="100" height="50" rx="8" fill="#6B7280" stroke="#374151" stroke-width="1.5"/>
+  <text x="250" y="210" text-anchor="middle" font-size="15" fill="#ffffff" font-weight="bold">gNB</text>
+
+  <!-- AMF -->
+  <rect x="200" y="60" width="100" height="50" rx="8" fill="#2E5C8A" stroke="#1F4E79" stroke-width="1.5"/>
+  <text x="250" y="90" text-anchor="middle" font-size="15" fill="#ffffff" font-weight="bold">AMF</text>
+
+  <!-- SMF -->
+  <rect x="450" y="60" width="100" height="50" rx="8" fill="#2E5C8A" stroke="#1F4E79" stroke-width="1.5"/>
+  <text x="500" y="90" text-anchor="middle" font-size="15" fill="#ffffff" font-weight="bold">SMF</text>
+
+  <!-- UPF -->
+  <rect x="450" y="180" width="100" height="50" rx="8" fill="#2E8B57" stroke="#1e5f3a" stroke-width="1.5"/>
+  <text x="500" y="210" text-anchor="middle" font-size="15" fill="#ffffff" font-weight="bold">UPF</text>
+
+  <!-- DN -->
+  <rect x="680" y="180" width="110" height="50" rx="8" fill="#B08900" stroke="#8a6a00" stroke-width="1.5"/>
+  <text x="735" y="210" text-anchor="middle" font-size="14" fill="#ffffff" font-weight="bold">Internet (DN)</text>
+
+  <!-- UE-gNB : Uu -->
+  <line x1="110" y1="205" x2="200" y2="205" stroke="#333" stroke-width="2"/>
+  <text x="155" y="198" text-anchor="middle" font-size="13" fill="#333">Uu</text>
+
+  <!-- gNB-AMF : N2 -->
+  <line x1="250" y1="180" x2="250" y2="110" stroke="#333" stroke-width="2"/>
+  <text x="262" y="145" font-size="13" fill="#333">N2</text>
+
+  <!-- AMF-SMF : N11 -->
+  <line x1="300" y1="85" x2="450" y2="85" stroke="#333" stroke-width="2"/>
+  <text x="375" y="78" text-anchor="middle" font-size="13" fill="#333">N11</text>
+
+  <!-- gNB-UPF : N3 -->
+  <line x1="300" y1="215" x2="450" y2="215" stroke="#2E8B57" stroke-width="2.5"/>
+  <text x="375" y="233" text-anchor="middle" font-size="13" fill="#2E8B57" font-weight="bold">N3 (plan usager)</text>
+
+  <!-- SMF-UPF : N4 -->
+  <line x1="500" y1="110" x2="500" y2="180" stroke="#333" stroke-width="2"/>
+  <text x="512" y="145" font-size="13" fill="#333">N4</text>
+
+  <!-- UPF-DN : N6 -->
+  <line x1="550" y1="215" x2="680" y2="215" stroke="#2E8B57" stroke-width="2.5"/>
+  <text x="615" y="233" text-anchor="middle" font-size="13" fill="#2E8B57" font-weight="bold">N6</text>
+
+  <!-- UE-AMF : N1 dashed arc -->
+  <path d="M 65,180 Q 140,20 220,65" fill="none" stroke="#B33636" stroke-width="2" stroke-dasharray="6,4"/>
+  <text x="110" y="45" text-anchor="middle" font-size="13" fill="#B33636" font-weight="bold">N1 (NAS)</text>
+
+  <!-- legend -->
+  <line x1="20" y1="270" x2="55" y2="270" stroke="#2E8B57" stroke-width="2.5"/>
+  <text x="65" y="274" font-size="12" fill="#333">Plan usager (données)</text>
+  <line x1="230" y1="270" x2="265" y2="270" stroke="#B33636" stroke-width="2" stroke-dasharray="6,4"/>
+  <text x="275" y="274" font-size="12" fill="#333">Signalisation NAS (transparente pour le gNB)</text>
+  <line x1="560" y1="270" x2="595" y2="270" stroke="#333" stroke-width="2"/>
+  <text x="605" y="274" font-size="12" fill="#333">Signalisation NGAP/PFCP</text>
+</svg>

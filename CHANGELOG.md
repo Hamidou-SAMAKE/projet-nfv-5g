@@ -29,3 +29,7 @@ selon l'auteur — voir convention de commits dans le README.
 - [A] fix: PLMN réel de l'AMF (001/01, pas 999/70) + slice SST=1/SD=1 requis — configs UERANSIM et abonné WebUI corrigés (IMSI 001010000000001)
 - [A] fix: conflit de port GTP-U (2152) entre gNB natif et conteneur UPF — port UPF publié sur l'IP hôte précise (pas 0.0.0.0) + IP secondaire dédiée au gNB
 - [A] **jalon J14 atteint** : session PDU de bout en bout validée (`ping -I uesimtun0 8.8.8.8`, 0% de perte)
+
+## J15 (reprise)
+- [A] fix: récidive du conflit de port GTP (détection d'IP automatique incohérente sur machine multi-IP) — `04-deploy-ueransim.sh` lit désormais `DOCKER_HOST_IP` depuis `vendor/docker-open5gs/.env` plutôt que de deviner via `ip route`
+- [A] chore: re-validation de la session PDU après reprise de session (0% de perte confirmé)

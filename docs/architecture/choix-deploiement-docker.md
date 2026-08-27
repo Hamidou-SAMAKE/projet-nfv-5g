@@ -81,6 +81,17 @@ Critères de choix :
    utilise une IP secondaire dédiée, ajoutée automatiquement sur la même
    interface réseau (`04-deploy-ueransim.sh`).
 
+   *Récidive observée :* sur une machine avec plusieurs IP sur la même
+   interface (ex. `.11` primaire + `.12` secondaire), la détection
+   automatique (`ip route get`) a un jour renvoyé une IP différente de celle
+   utilisée par Docker, recalculant une IP dédiée pour le gNB qui retombait
+   exactement sur celle de l'UPF — recréant le même conflit. Corrigé en
+   lisant directement `DOCKER_HOST_IP` depuis `vendor/docker-open5gs/.env`
+   (source de vérité fiable) plutôt que de deviner via `ip route`.
+   Par ailleurs, l'IP secondaire ajoutée pour le gNB (`ip addr add`) ne
+   survit pas à un redémarrage de la VM — sans conséquence pratique, le
+   script la rajoute automatiquement à chaque exécution.
+
 ## Jalon atteint
 
 Session PDU de bout en bout validée (J14) : `ping -I uesimtun0 8.8.8.8` répond

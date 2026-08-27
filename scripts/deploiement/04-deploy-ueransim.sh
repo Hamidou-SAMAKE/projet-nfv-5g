@@ -30,6 +30,15 @@ RUNTIME_DIR="${PROJECT_ROOT}/vendor/ueransim-runtime"
 LOG_DIR="${PROJECT_ROOT}/vendor/logs-ueransim"
 
 echo "==> [1/6] Détection des adresses IP (5GC et gNB)..."
+OPEN5GS_ENV="${PROJECT_ROOT}/vendor/docker-open5gs/.env"
+if [ -z "${HOST_IP:-}" ] && [ -f "${OPEN5GS_ENV}" ]; then
+  # Source de vérité fiable : l'IP réellement utilisée pour publier les ports
+  # Docker (AMF/UPF), plutôt que de deviner via 'ip route' — peu fiable dès
+  # que la machine a plusieurs IP sur la même interface (cas rencontré : la
+  # détection automatique a un jour renvoyé une IP différente de celle
+  # utilisée par Docker, recréant le conflit de port du bug n°5).
+  HOST_IP="$(grep '^DOCKER_HOST_IP=' "${OPEN5GS_ENV}" | cut -d= -f2)"
+fi
 HOST_IP="${HOST_IP:-$(ip route get 1.1.1.1 2>/dev/null | awk '{print $7; exit}')}"
 IFACE="$(ip route get 1.1.1.1 2>/dev/null | awk '{print $5; exit}')"
 if [ -z "${HOST_IP}" ] || [ -z "${IFACE}" ]; then

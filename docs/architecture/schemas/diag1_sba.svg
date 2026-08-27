@@ -1,0 +1,65 @@
+<svg width="900" height="320" viewBox="0 0 900 320" xmlns="http://www.w3.org/2000/svg" font-family="Arial, Helvetica, sans-serif">
+  <rect width="900" height="320" fill="#ffffff"/>
+  <text x="450" y="30" text-anchor="middle" font-size="18" font-weight="bold" fill="#1F4E79">Vue orientée service (SBA) — 3GPP TS 23.501</text>
+
+  <line x1="70" y1="100" x2="830" y2="100" stroke="#1F4E79" stroke-width="3"/>
+  <text x="450" y="65" text-anchor="middle" font-size="13" fill="#1F4E79" font-style="italic">Bus de service — chaque NF expose une interface Nxxx</text>
+
+  <!-- 8 NF boxes -->
+  <!-- positions -->
+  <!-- NRF -->
+  <line x1="112" y1="100" x2="112" y2="140" stroke="#555" stroke-width="1.5"/>
+  <text x="118" y="125" font-size="12" fill="#555">Nnrf</text>
+  <rect x="70" y="140" width="85" height="50" rx="8" fill="#2E5C8A" stroke="#1F4E79" stroke-width="1.5"/>
+  <text x="112" y="170" text-anchor="middle" font-size="15" fill="#ffffff" font-weight="bold">NRF</text>
+
+  <!-- AMF -->
+  <line x1="208" y1="100" x2="208" y2="140" stroke="#555" stroke-width="1.5"/>
+  <text x="214" y="125" font-size="12" fill="#555">Namf</text>
+  <rect x="166" y="140" width="85" height="50" rx="8" fill="#2E5C8A" stroke="#1F4E79" stroke-width="1.5"/>
+  <text x="208" y="170" text-anchor="middle" font-size="15" fill="#ffffff" font-weight="bold">AMF</text>
+
+  <!-- SMF -->
+  <line x1="304" y1="100" x2="304" y2="140" stroke="#555" stroke-width="1.5"/>
+  <text x="310" y="125" font-size="12" fill="#555">Nsmf</text>
+  <rect x="262" y="140" width="85" height="50" rx="8" fill="#2E5C8A" stroke="#1F4E79" stroke-width="1.5"/>
+  <text x="304" y="170" text-anchor="middle" font-size="15" fill="#ffffff" font-weight="bold">SMF</text>
+
+  <!-- AUSF -->
+  <line x1="400" y1="100" x2="400" y2="140" stroke="#555" stroke-width="1.5"/>
+  <text x="406" y="125" font-size="12" fill="#555">Nausf</text>
+  <rect x="358" y="140" width="85" height="50" rx="8" fill="#3D7A9E" stroke="#1F4E79" stroke-width="1.5"/>
+  <text x="400" y="170" text-anchor="middle" font-size="15" fill="#ffffff" font-weight="bold">AUSF</text>
+
+  <!-- UDM -->
+  <line x1="496" y1="100" x2="496" y2="140" stroke="#555" stroke-width="1.5"/>
+  <text x="502" y="125" font-size="12" fill="#555">Nudm</text>
+  <rect x="454" y="140" width="85" height="50" rx="8" fill="#3D7A9E" stroke="#1F4E79" stroke-width="1.5"/>
+  <text x="496" y="170" text-anchor="middle" font-size="15" fill="#ffffff" font-weight="bold">UDM</text>
+
+  <!-- PCF -->
+  <line x1="592" y1="100" x2="592" y2="140" stroke="#555" stroke-width="1.5"/>
+  <text x="598" y="125" font-size="12" fill="#555">Npcf</text>
+  <rect x="550" y="140" width="85" height="50" rx="8" fill="#5B9BD5" stroke="#1F4E79" stroke-width="1.5"/>
+  <text x="592" y="170" text-anchor="middle" font-size="15" fill="#ffffff" font-weight="bold">PCF</text>
+
+  <!-- NSSF -->
+  <line x1="688" y1="100" x2="688" y2="140" stroke="#555" stroke-width="1.5"/>
+  <text x="694" y="125" font-size="12" fill="#555">Nnssf</text>
+  <rect x="646" y="140" width="85" height="50" rx="8" fill="#5B9BD5" stroke="#1F4E79" stroke-width="1.5"/>
+  <text x="688" y="170" text-anchor="middle" font-size="15" fill="#ffffff" font-weight="bold">NSSF</text>
+
+  <!-- BSF -->
+  <line x1="784" y1="100" x2="784" y2="140" stroke="#555" stroke-width="1.5"/>
+  <text x="790" y="125" font-size="12" fill="#555">Nbsf</text>
+  <rect x="742" y="140" width="85" height="50" rx="8" fill="#5B9BD5" stroke="#1F4E79" stroke-width="1.5"/>
+  <text x="784" y="170" text-anchor="middle" font-size="15" fill="#ffffff" font-weight="bold">BSF</text>
+
+  <!-- legend -->
+  <rect x="70" y="230" width="18" height="18" fill="#2E5C8A"/>
+  <text x="94" y="244" font-size="13" fill="#333">Fonctions cœur du plan de session (NRF, AMF, SMF)</text>
+  <rect x="70" y="256" width="18" height="18" fill="#3D7A9E"/>
+  <text x="94" y="270" font-size="13" fill="#333">Sécurité et données abonné (AUSF, UDM)</text>
+  <rect x="70" y="282" width="18" height="18" fill="#5B9BD5"/>
+  <text x="94" y="296" font-size="13" fill="#333">Politique, tranchage, contrôle de débit (PCF, NSSF, BSF)</text>
+</svg>
