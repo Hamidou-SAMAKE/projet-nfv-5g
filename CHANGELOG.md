@@ -36,3 +36,6 @@ selon l'auteur — voir convention de commits dans le README.
 
 ## J15 (révision cadrage)
 - [A+B] docs: révision de la note de cadrage — protocole Run 1/Run 2 précisé (baseline conservé sur machine A suite au jalon J14, Run 2 = migration UPF seule vers machine B via K8s)
+
+## J15 (vérification post-K3s)
+- [A] chore: testbed 5G re-validé après installation de K3s sur machine A par B (worker node) — 0% de perte, aucune interférence Docker/K3s observée
