@@ -33,3 +33,6 @@ selon l'auteur — voir convention de commits dans le README.
 ## J15 (reprise)
 - [A] fix: récidive du conflit de port GTP (détection d'IP automatique incohérente sur machine multi-IP) — `04-deploy-ueransim.sh` lit désormais `DOCKER_HOST_IP` depuis `vendor/docker-open5gs/.env` plutôt que de deviner via `ip route`
 - [A] chore: re-validation de la session PDU après reprise de session (0% de perte confirmé)
+
+## J15 (révision cadrage)
+- [A+B] docs: révision de la note de cadrage — protocole Run 1/Run 2 précisé (baseline conservé sur machine A suite au jalon J14, Run 2 = migration UPF seule vers machine B via K8s)
