@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: upf
+  namespace: nfv-5g
+  labels:
+    app: upf
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: upf
+  template:
+    metadata:
+      labels:
+        app: upf
+    spec:
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      containers:
+        - name: upf
+          image: ghcr.io/borjis131/upf:v2.7.6
+          command: ["/bin/bash", "/usr/local/bin/entrypoint.sh"]
+          args: ["-c", "/etc/open5gs/custom/upf.yaml"]
+          securityContext:
+            capabilities:
+              add: ["NET_ADMIN"]
+          volumeMounts:
+            - name: upf-config
+              mountPath: /etc/open5gs/custom/upf.yaml
+              subPath: upf.yaml
+            - name: dev-net-tun
+              mountPath: /dev/net/tun
+      volumes:
+        - name: upf-config
+          configMap:
+            name: upf-config
+        - name: dev-net-tun
+          hostPath:
+            path: /dev/net/tun
+            type: CharDevice

@@ -1,0 +1,14 @@
+logger:
+global:
+upf:
+  pfcp:
+    server:
+      - address: 0.0.0.0
+    client:
+  gtpu:
+    server:
+      - address: 0.0.0.0
+        advertise: 100.82.162.11
+  session:
+    - subnet: 10.45.0.0/16
+      gateway: 10.45.0.1
