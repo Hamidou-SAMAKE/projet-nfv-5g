@@ -39,3 +39,8 @@ selon l'auteur — voir convention de commits dans le README.
 
 ## J15 (vérification post-K3s)
 - [A] chore: testbed 5G re-validé après installation de K3s sur machine A par B (worker node) — 0% de perte, aucune interférence Docker/K3s observée
+
+## J20 (scénarios de trafic)
+- [A] feat: scripts de scénarios de trafic paramétrables (provisionnement en masse, montée en charge par paliers, génération iperf3) — `scripts/mesures/01-provisionner-abonnes.sh`, `02-scenario-trafic.sh`, `03-generer-trafic-iperf3.sh`
+- [A] fix: après recréation du conteneur upf seul (sans smf), l'association PFCP SMF↔UPF reste cassée ("No UPFs are PFCP associated") — toujours redémarrer smf après upf
+- [A] chore: scénario 5 UE validé (attache + 5 sessions PDU établies simultanément)
