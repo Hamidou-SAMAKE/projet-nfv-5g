@@ -44,3 +44,7 @@ selon l'auteur — voir convention de commits dans le README.
 - [A] feat: scripts de scénarios de trafic paramétrables (provisionnement en masse, montée en charge par paliers, génération iperf3) — `scripts/mesures/01-provisionner-abonnes.sh`, `02-scenario-trafic.sh`, `03-generer-trafic-iperf3.sh`
 - [A] fix: après recréation du conteneur upf seul (sans smf), l'association PFCP SMF↔UPF reste cassée ("No UPFs are PFCP associated") — toujours redémarrer smf après upf
 - [A] chore: scénario 5 UE validé (attache + 5 sessions PDU établies simultanément)
+
+## J20 (test iperf3 local)
+- [A] fix: iperf3 ne traite qu'un client à la fois par port — un port dédié par UE désormais utilisé (`03-generer-trafic-iperf3.sh`, `serveur-iperf3-machine-b.sh`), indispensable pour du trafic concurrent multi-UE
+- [A] chore: chaîne de mesure trafic validée en local (5 UE, 5 flux iperf3 concurrents réussis) ; test réel via Tailscale vers machine B en attente du serveur côté B
