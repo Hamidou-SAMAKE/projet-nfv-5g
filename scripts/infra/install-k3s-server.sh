@@ -13,8 +13,16 @@ if command -v k3s &> /dev/null; then
   exit 0
 fi
 
-echo "Installation de K3s en mode serveur..."
-curl -sfL https://get.k3s.io | sh -
+TAILSCALE_IP=$(tailscale ip -4)
+if [ -z "$TAILSCALE_IP" ]; then
+  echo "ERREUR : impossible de recuperer l'IP Tailscale. Verifiez que Tailscale est bien connecte (tailscale status)."
+  exit 1
+fi
+
+echo "Installation de K3s en mode serveur, avec node-ip force sur Tailscale (${TAILSCALE_IP})..."
+echo "(evite la dependance a l'IP locale DHCP, source d'un bug rencontre en Phase 3 :"
+echo " l'agent perdait la connexion au control-plane apres un changement d'IP locale/reboot)"
+curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--node-ip=${TAILSCALE_IP}" sh -
 
 echo "Verification du service..."
 sudo systemctl status k3s --no-pager
