@@ -101,3 +101,21 @@ avec 0% de perte à travers le tunnel UE → gNB → UPF → Internet.
 
 5. Scénarios de trafic paramétrables pour la chaîne de mesure (J15-J21).
 6. Rédaction du guide de déploiement reproductible (rapport final).
+
+6. **Deux routes par défaut avec la même métrique (cause racine des bugs n°5 et de récidives ultérieures)** —
+   la VM avait une IP statique (`.11`, définie dans `/etc/netplan/01-netcfg.yaml`)
+   et une IP DHCP (`.12`, imposée par `/etc/netplan/50-cloud-init.yaml` qui
+   forçait `dhcp4: true` par-dessus la config statique), toutes deux actives
+   simultanément sur la même interface avec la même métrique de route. Le
+   noyau choisissait arbitrairement laquelle utiliser comme adresse source
+   pour `ip route get`, ce qui rendait la détection automatique d'IP (utilisée
+   par plusieurs scripts) non déterministe — recréant sporadiquement le
+   conflit de port déjà résolu au bug n°5, y compris sur des conteneurs déjà
+   stables (`amf`, `upf` recréés avec la mauvaise IP après un simple
+   redéploiement).
+   **Correctif définitif** : IP statique unique fixée sur `.12` — désactivation
+   de la gestion réseau par cloud-init (`/etc/cloud/cloud.cfg.d/99-disable-network-config.cfg`,
+   `network: {config: disabled}`), neutralisation de `50-cloud-init.yaml`
+   (`dhcp4: false`), et mise à jour de `01-netcfg.yaml` avec l'adresse
+   statique retenue, suivi de `sudo netplan apply`. Vérifié stable sur 5
+   exécutions consécutives de `ip route get`.
