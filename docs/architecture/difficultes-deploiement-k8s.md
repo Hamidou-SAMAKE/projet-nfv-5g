@@ -55,6 +55,44 @@ args: ["-c", "/etc/open5gs/custom/upf.yaml"]
 
 Pod stable, `1/1 Running`, `0` redémarrage sur plusieurs minutes d'observation continue. Jalon J15-16 (UPF déployée en pod K8s sur la machine B) validé.
 
+---
+
+# Incident 2 — Perte de connexion du cluster après changement d'IP locale (Phase 3, tard)
+
+## Contexte
+
+Après un redémarrage complet des deux machines (test de robustesse volontaire), l'agent K3s sur la machine A n'arrivait plus à se reconnecter au control-plane sur B, malgré Tailscale fonctionnel des deux côtés (`tailscale status` montrait les deux machines actives et connectées directement).
+
+## Symptôme
+
+```
+level=error msg="Failed to connect to proxy. Empty dialer response" error="dial tcp 192.168.1.13:6443: connect: no route to host"
+```
+
+L'agent tentait de joindre `192.168.1.13:6443` — une adresse IP **locale**, pas l'IP Tailscale de B (`100.82.162.11`) utilisée pourtant explicitement lors de l'installation initiale (`K3S_URL=https://100.82.162.11:6443`).
+
+## Cause
+
+K3s enregistre, en plus de l'URL de connexion initiale, l'**IP locale du node** (détectée automatiquement via l'interface réseau par défaut) pour certaines communications internes entre nodes du cluster. Cette IP locale est distribuée par DHCP et peut changer à chaque redémarrage ou reconfiguration réseau (dans notre cas, une bascule temporaire NAT→Bridged sur la VM de la machine B a provoqué un renouvellement de bail DHCP, changeant son IP locale de `192.168.1.12` à `192.168.1.13`). Le control-plane s'était donc enregistré avec une IP locale devenue invalide après ce changement, rendant le cluster injoignable pour l'agent malgré un lien Tailscale fonctionnel.
+
+## Correction
+
+Réinstallation du serveur K3s (sur B) et de l'agent (sur A) avec le paramètre `--node-ip` forcé explicitement sur l'adresse Tailscale de chaque machine :
+```bash
+# Sur B (serveur)
+curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--node-ip=100.82.162.11" sh -
+
+# Sur A (agent)
+curl -sfL https://get.k3s.io | K3S_URL=https://100.82.162.11:6443 K3S_TOKEN=<token> INSTALL_K3S_EXEC="--node-ip=100.91.77.11" sh -
+```
+Ce paramètre force K3s à utiliser l'IP Tailscale (stable, indépendante du DHCP local) pour toutes ses communications internes, éliminant la dépendance au réseau local.
+
+## Conséquence opérationnelle
+
+La réinstallation du serveur K3s a régénéré le cluster (nouveau token, nouvel état `etcd`), entraînant la perte du pod UPF précédemment déployé et stabilisé (Incident 1). Celui-ci a dû être redéployé après coup avec `scripts/infra/deploy-upf-k8s.sh`.
+
 ## Enseignement méthodologique
 
-Face à un crash trop rapide pour être capturé par les logs standards (`kubectl logs --previous` a échoué à plusieurs reprises pendant ce diagnostic, probablement parce que le conteneur mourait avant que containerd ne finalise l'écriture des logs), la méthode qui a permis de resoudre le problème a été de **reproduire l'exécution manuellement dans un pod de diagnostic** (`command: ["sleep", "3600"]`), en isolant chaque étape de l'entrypoint (chargement des fonctions, configuration réseau, lancement du binaire) plutôt que de chercher à interpréter des logs partiels ou absents.
+Face à un crash trop rapide pour être capturé par les logs standards (`kubectl logs --previous` a échoué à plusieurs reprises pendant ce diagnostic, probablement parce que le conteneur mourait avant que containerd ne finalise l'écriture des logs), la méthode qui a permis de resoudre le problème (Incident 1) a été de **reproduire l'exécution manuellement dans un pod de diagnostic** (`command: ["sleep", "3600"]`), en isolant chaque étape de l'entrypoint (chargement des fonctions, configuration réseau, lancement du binaire) plutôt que de chercher à interpréter des logs partiels ou absents.
+
+L'Incident 2 illustre un principe distinct, propre aux architectures multi-machines reliées par VPN : une IP stable pour le VPN (Tailscale) ne suffit pas si le logiciel orchestré (ici K3s) capture par ailleurs une IP locale instable pour son propre usage interne. Toute option de configuration explicite pour forcer l'IP de communication (`--node-ip` chez K3s) doit être utilisée dès l'installation initiale dans ce type d'architecture, plutôt que de laisser le logiciel détecter automatiquement une interface réseau qui peut changer.
