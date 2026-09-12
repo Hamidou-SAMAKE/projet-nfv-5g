@@ -2,11 +2,13 @@
 
 *Déploiement et dimensionnement NFV d'un cœur de réseau 5G à l'aide d'outils open source*
 
+*Révisée fin Phase 3 : recentrage sur Run 1 uniquement, cf. `docs/architecture/decision-abandon-run2.md`.*
+
 |                     |                                                        |                |                                                            |
 |---------------------|--------------------------------------------------------|----------------|------------------------------------------------------------|
 | **Établissement**   | ESMT Dakar — Département Recherche et Innovation (DRI) | **Durée**      | 30 jours ouvrés                                            |
 | **Étudiant A**      | Hamidou SAMAKE — Réseau & Orchestration                | **Étudiant B** | Cheick Abdoul Aziz BOUGOUM — Infrastructure & Modélisation |
-| **Document établi** | J2 — note de cadrage (révisé Phase 3 : architecture Run 1/Run 2 précisée) | **Statut**     | À valider par l'encadrant                                  |
+| **Document établi** | J2 — révisé fin Phase 3 (recentrage Run 1)             | **Statut**     | À valider par l'encadrant                                  |
 
 ## 1. Contexte et objectif
 
@@ -15,12 +17,9 @@ La 5G Standalone repose sur un cœur de réseau (5GC) virtualisé, organisé en 
 Objectif général : concevoir, déployer et dimensionner un cœur de réseau 5G SA virtualisé à partir d'outils open source, en confrontant une modélisation analytique de la capacité à des mesures expérimentales sous charge.
 
 - Déployer un testbed 5G SA fonctionnel et démontrer l'établissement de sessions PDU de bout en bout.
-
 - Virtualiser et orchestrer les fonctions réseau selon le modèle de référence ETSI NFV (NFVI / VNF / MANO).
-
 - Modéliser la capacité des fonctions critiques (AMF, SMF, UPF) par des files d'attente et en déduire une règle de dimensionnement.
-
-- Valider le modèle par des campagnes de charge et proposer des scénarios de mise à l'échelle argumentés.
+- Valider le modèle par des campagnes de charge et démontrer un scénario de mise à l'échelle orchestré.
 
 ## 2. Revue bibliographique ciblée
 
@@ -31,129 +30,83 @@ Objectif général : concevoir, déployer et dimensionner un cœur de réseau 5G
 *Définit les deux représentations de l'architecture 5GC : orientée service (une NF expose ses services à d'autres NF autorisées) et par points de référence (interaction point-à-point, ex. N11 entre AMF et SMF).*
 
 - **3GPP TS 23.502** — procédures (enregistrement, établissement de session PDU, handover)
-
 - **3GPP TS 23.503** — politiques QoS (mobilisable si l'axe SMF/PCF est approfondi)
 
 ## 2.2 Cadre normatif ETSI NFV
 
 - **ETSI GS NFV 002 V1.1.1 (2013-10)** — Architectural Framework : structure la NFV autour de trois domaines — VNF, NFVI, MANO.
-
 - **ETSI GS NFV-MAN 001 V1.1.1 (2014-12)** — Management and Orchestration : rôle du cadre NFV-MANO dans la gestion de la NFVI et l'orchestration du cycle de vie des VNF.
-
 - **ETSI NFV Release 4 (finalisée, v4.5.1)** — extensions container-native (série SOL001/002/003/005, dont SOL020 pour la gestion de clusters de conteneurs). Justifie le choix Docker/Kubernetes plutôt qu'OpenStack seul.
 
 ## 2.3 Piles open source — release 3GPP réellement supportée
 
-- **Open5GS** — documentation officielle (open5gs.org, github.com/open5gs/open5gs) : version courante alignée Release 19. Sources tierces datées (ex. blogs 2021) mentionnant la Release 16 sont obsolètes et à ne pas citer.
-
-- **free5GC** — projet Linux Foundation (free5gc.org) : branche principale alignée Release 15, branche « next » alignée Release 17. Option de repli si blocage majeur sur Open5GS.
-
-- **UERANSIM** — github.com/aligungr/UERANSIM, simulateur gNB/UE (licence AGPL-3.0, à mentionner dans le rapport).
-
-- **ETSI OSM** — documentation officielle osm.etsi.org/docs (orchestrateur NFV, onboarding de packages VNF/NS).
+- **Open5GS** — documentation officielle (open5gs.org, github.com/open5gs/open5gs) : version courante alignée Release 19.
+- **free5GC** — projet Linux Foundation (free5gc.org) : branche principale alignée Release 15, branche « next » alignée Release 17. Option de repli.
+- **UERANSIM** — github.com/aligungr/UERANSIM, simulateur gNB/UE (licence AGPL-3.0).
+- **ETSI OSM** — documentation officielle osm.etsi.org/docs.
 
 ## 2.4 Sources écartées
 
-*Extraits Scribd de drafts 3GPP non stabilisés (ex. TS 23.501 V0.0.0/V0.1.1, 2017, sections encore marquées « Editor's notes »), blogs non primaires, et brevets USPTO citant les specs en bibliographie : aucun de ces éléments n'est retenu comme référence citable dans le rapport final.*
+*Extraits Scribd de drafts 3GPP non stabilisés, blogs non primaires, et brevets USPTO citant les specs en bibliographie : aucun de ces éléments n'est retenu comme référence citable dans le rapport final.*
 
 ## 3. Choix de la pile technique
 
 **Choix retenu : Open5GS + UERANSIM.**
 
-- Couple le plus documenté et le plus léger pour un testbed pédagogique (empreinte de 2 à 4 Go de RAM suffisante, compatible avec la contrainte matérielle la plus stricte du binôme).
-
+- Couple le plus documenté et le plus léger pour un testbed pédagogique.
 - Alignement Release 19 : couverture large du périmètre « R15+ » exigé par le cahier des charges.
+- Communauté active, nombreux guides de référence.
 
-- Communauté active, nombreux guides de référence pour le déploiement et le débogage.
-
-*free5GC reste une option de repli en cas de blocage majeur (axe cloud-native, charts Kubernetes officiels).*
+*free5GC reste une option de repli en cas de blocage majeur.*
 
 ## 4. Environnement matériel et réseau
 
 ## 4.1 Machines et rôles
 
-|                       |                                    |                                                                               |
-|-----------------------|------------------------------------|-------------------------------------------------------------------------------|
-|                       | **Machine A**                      | **Machine B**                                                                 |
-| **RAM**               | 8 Go                               | 32 Go                                                                         |
-| **Rôle (phases 0-2)** | Open5GS (toutes les NF) + UERANSIM | Préparation de l'environnement K8s/OSM en parallèle                           |
-| **Rôle (phases 3-5)** | Worker node du cluster Kubernetes ; **héberge aussi le Run 1 (baseline nœud unique, cf. §5)** | Control-plane K8s + ETSI OSM (4 CPU / 16 Go recommandés) + Prometheus/Grafana |
+|                       |                                              |                                                                                |
+|-----------------------|----------------------------------------------|---------------------------------------------------------------------------------|
+|                       | **Machine A**                                | **Machine B**                                                                 |
+| **RAM**               | 8 Go                                          | 32 Go                                                                         |
+| **Rôle**               | Testbed complet (5GC conteneurisé + UERANSIM natif) — héberge le Run 1 | Control-plane K8s + ETSI OSM (objectif secondaire) + Prometheus/Grafana + démonstration de scaling K8s (UPF, en local) |
 
-Mise en réseau : VPN mesh (Tailscale) installé sur les deux machines dès le J1 — évite les problèmes de NAT/port-forwarding. Alternative : réseau local avec IP fixes.
+Mise en réseau : VPN mesh (Tailscale) installé sur les deux machines pour la connectivité inter-machines (cluster K8s, monitoring à distance) — évite les problèmes de NAT/port-forwarding.
 
-Ports/flux inter-machines à ouvrir : N2 (SCTP 38412, signalisation gNB↔AMF), N3 (UDP 2152 GTP-U, plan usager gNB↔UPF), N4 (UDP 8805 PFCP, contrôle UPF↔SMF), K8s API (TCP 6443), Kubelet (TCP 10250), CNI (selon plugin Calico/Flannel).
+Ports/flux inter-machines : K8s API (TCP 6443), Kubelet (TCP 10250), CNI (Flannel/VXLAN).
 
-## 5. Point méthodologique — architecture nœud unique vs distribuée
+## 5. Architecture retenue pour le dimensionnement (Phase 4)
 
-Le choix d'une architecture à deux machines reliées par VPN (plutôt qu'un poste unique hébergeant tout le testbed) apporte un avantage réel — utilisation effective des deux machines, rapprochement d'un vrai cluster K8s distribué (control-plane / worker séparés) — mais introduit un risque méthodologique pour l'objectif 4 : si AMF/SMF/UPF sont répartis entre deux machines, chaque appel N2/N3/N4 traverse un réseau réel avec une latence et une gigue non nulles, ce qui peut contaminer la mesure du temps de service µ par NF utilisée pour valider le modèle de files d'attente.
+Toutes les mesures de dimensionnement (Phase 4) sont réalisées sur la machine A, où le testbed complet (5GC conteneurisé + UERANSIM natif) est déployé et validé (jalon J14 : session PDU de bout en bout fonctionnelle, `ping -I uesimtun0` sans perte).
 
-**Décision retenue : ne pas trancher entre les deux architectures, mais les comparer et quantifier l'effet de la topologie sur le dimensionnement — ce risque devient un résultat scientifique du rapport plutôt qu'un biais non contrôlé.**
+Le cluster Kubernetes (machine B, worker sur A) est utilisé pour l'objectif d'orchestration et de scaling : une démonstration de mise à l'échelle horizontale (passage de l'UPF de 1 à plusieurs instances via K8s) est réalisée **en local sur la machine B**, indépendamment du testbed de mesure sur A — ces deux volets ne sont pas couplés dans le protocole de mesure.
 
-**Précision d'architecture (post-déploiement Phase 2, jalon J14) :** le testbed réellement déployé par l'Étudiant A place UERANSIM (gNB + UE) en **installation native sur la machine A**, avec une adresse IP secondaire dédiée pour éviter le conflit de port GTP-U avec l'UPF conteneurisé (cf. `docs/architecture/choix-deploiement-docker.md`, bug n°5). Ce mécanisme est spécifique à l'environnement réseau de la machine A et non trivialement portable vers la machine B sans revalider les correctifs déjà appliqués (PLMN, port GTP, endpoint réseau Docker).
-
-**Conséquence sur le protocole : le Run 1 (baseline nœud unique) est donc réalisé intégralement sur la machine A**, où le testbed complet (5GC conteneurisé + UERANSIM natif) est déjà déployé et validé (jalon J14) — plutôt que de migrer les NF vers la machine B comme envisagé initialement. Cela évite de dupliquer le travail de débogage déjà effectué (bugs n°1 à n°5) sur un nouvel environnement, avec le risque d'en réintroduire des variantes. Le Run 2 (distribué) consiste alors à migrer l'UPF — seule NF dans le scope retenu, cf. §5.3 — vers la machine B via Kubernetes, tandis qu'AMF, SMF et UERANSIM restent sur la machine A.
-
-## 5.1 Variables à contrôler
-
-|                                                                            |                                                                             |
-|----------------------------------------------------------------------------|-----------------------------------------------------------------------------|
-| **Variable maintenue constante**                                           | **Pourquoi**                                                                |
-| Nombre d'UE simulés et profil de montée en charge (paliers, intervalles)   | Sinon l'écart pourrait venir du trafic, pas de la topologie                 |
-| Version des NF (même build Open5GS, mêmes YAML)                            | Évite une variable confondue avec le placement                              |
-| Ressources allouées par NF (mêmes limites CPU/RAM)                         | Évite de mesurer un effet de sous-dimensionnement plutôt qu'un effet réseau |
-| Script et paramètres de génération de charge (UERANSIM, iperf3)            | Reproductibilité                                                            |
-| Charge parasite des machines contrôlée (CPU idle vérifié avant chaque run) | Évite de confondre contention CPU locale et latence réseau                  |
-
-*Seule variable qui change entre les deux runs : la localisation de l'UPF (colocalisée avec AMF/SMF/UERANSIM sur la machine A en Run 1, migrée vers la machine B via Kubernetes en Run 2).*
-
-## 5.2 Protocole en trois étapes
-
-- Calibration préalable (dès J1-J2, pas en Phase 4) : mesurer la latence et la gigue du lien Tailscale à vide (ping, iperf3) entre les deux machines — donnée de référence citée dans le rapport, à re-mesurer si le lien semble varier dans le temps.
-
-- **Run 1 — baseline nœud unique (machine A) :** AMF, SMF, UPF et UERANSIM colocalisés sur la machine A — architecture déjà déployée et validée au jalon J14 (session PDU de bout en bout fonctionnelle), aucun redéploiement nécessaire. Mesure du temps de service µ par NF dans les conditions les plus propres possible — ce run valide le modèle analytique (objectifs 3/4).
-
-- **Run 2 — distribué (UPF sur machine B) :** même charge, mêmes UE, même script de montée en charge, mais l'UPF est migrée vers la machine B (pod Kubernetes), tandis qu'AMF, SMF et UERANSIM restent sur la machine A. Mêmes métriques relevées.
-
-Comparaison : écart entre les deux courbes de latence/débit, mis en regard de la latence réseau mesurée en calibration. Si l'écart correspond à la latence Tailscale mesurée, l'explication est solide ; si l'écart est plus grand, une autre cause doit être recherchée (ex. contention CPU sur la machine 8 Go) — à documenter en section « limites » du rapport.
-
-## 5.3 Scope retenu
-
-**La Phase 4 ne compte que 6 jours (J22-J27), déjà dense. La comparaison nœud unique / distribué est donc limitée à l'UPF — la NF la plus exposée au trafic inter-machines (elle porte N3 et N4) — plutôt qu'aux trois NF critiques, pour rester réalisable dans le planning.** C'est aussi la seule migration nécessaire pour le Run 2, puisque AMF, SMF et UERANSIM restent sur la machine A dans les deux runs (cf. §5.2).
+*Une architecture distribuée (UPF sur machine B, SMF sur machine A) a été explorée en Phase 3 dans le cadre d'un protocole de comparaison de topologies, initialement prévu pour cette section. Cette piste a été abandonnée suite à une limite technique identifiée (bug de hairpin NAT/conntrack, indépendant de la latence réseau) — cf. `docs/architecture/decision-abandon-run2.md` et `docs/architecture/resultat-limite-pfcp-heartbeat.md` pour le détail complet de l'investigation, conservée comme résultat scientifique à part entière.*
 
 ## 6. Répartition des rôles
 
 |                        |                                                           |                                                                                       |
-|------------------------|-----------------------------------------------------------|---------------------------------------------------------------------------------------|
+|------------------------|-------------------------------------------------------------|---------------------------------------------------------------------------------------|
 |                        | **Étudiant A — Hamidou SAMAKE**                           | **Étudiant B — Cheick Abdoul Aziz BOUGOUM**                                           |
-| **Domaine principal**  | Déploiement 5GC + RAN/UE, plans N2/N3/N4, sessions PDU    | Virtualisation, VIM, orchestration OSM, dimensionnement analytique                    |
-| **Contributions clés** | Testbed fonctionnel (machine A, jalon J14 validé), scénarios de trafic, intégration RAN | NFVI/K8s, chaîne de mesure Prometheus/Grafana, modèle de files d'attente, **migration de l'UPF vers la machine B pour le Run 2** |
-| **Livrable porté**     | Guide de déploiement reproductible                        | Modèle + campagnes de dimensionnement (Run 1 sur machine A, Run 2 avec UPF migrée sur machine B) |
+| **Domaine principal**  | Déploiement 5GC + RAN/UE, plans N2/N3/N4, sessions PDU, campagnes de charge | Virtualisation, VIM, orchestration K8s, dimensionnement analytique, démonstration de scaling |
+| **Contributions clés** | Testbed fonctionnel (machine A, jalon J14 validé), scénarios de trafic, intégration RAN | NFVI/K8s, chaîne de mesure Prometheus/Grafana, modèle de files d'attente |
+| **Livrable porté**     | Guide de déploiement reproductible                        | Modèle + campagnes de dimensionnement (Run 1) + démonstration de scaling K8s |
 
-Jalons communs : cadrage (J2) · testbed opérationnel (J14) · chaîne de mesure prête (J21) · dimensionnement validé (J27) · rapport et soutenance (J30). Traçabilité via commits préfixés \[A\]/\[B\]/\[A+B\].
+Jalons communs : cadrage (J2) · testbed opérationnel (J14) · chaîne de mesure prête (J21) · dimensionnement validé (J27) · rapport et soutenance (J30). Traçabilité via commits préfixés [A]/[B]/[A+B].
 
 ## 7. Structure du dépôt Git
 
 - docs/ — note de cadrage, revue bibliographique, architecture, comparatifs
-
-- scripts/ — déploiement (A), infra K8s/OSM (B), mesures (A+B)
-
-- config/ — Open5GS, UERANSIM, K8s, OSM
-
+- scripts/ — déploiement (A), infra K8s (B), mesures (A+B)
+- config/ — Open5GS, UERANSIM, K8s
 - monitoring/ — Prometheus, Grafana
-
-- modele/ — notebooks de modélisation, données brutes et traitées (incluant les deux runs)
-
+- modele/ — notebooks de modélisation, données brutes et traitées
 - rapport/ — rapport LaTeX et figures
-
 - soutenance/ — slides
 
 ## 8. Risques et mesures d'atténuation
 
 |                                                                |                                       |                                                                                                |
-|----------------------------------------------------------------|---------------------------------------|------------------------------------------------------------------------------------------------|
+|----------------------------------------------------------------|-----------------------------------------|-----------------------------------------------------------------------------------------------|
 | **Risque**                                                     | **Impact**                            | **Mesure d'atténuation**                                                                       |
-| Latence/gigue Tailscale contaminant les mesures Run 2          | Écart modèle/mesure non interprétable | Calibration préalable (ping/iperf3 à vide dès J1-J2) + comparaison ciblée sur l'UPF uniquement |
-| Déséquilibre RAM (8 vs 32 Go) lors de la fusion en cluster K8s | Cluster instable                      | Control-plane + OSM sur machine B ; machine A en worker node uniquement                        |
-| Complexité d'OSM chronophage                                   | Retard Phase 4                        | OSM en objectif secondaire si retard ; orchestration K8s manuelle suffit à valider le scaling  |
+| Complexité d'OSM chronophage                                   | Retard Phase 4                        | OSM en objectif secondaire ; orchestration K8s manuelle suffit à valider le scaling            |
 | Hypothèses du modèle mises en défaut (non-Poisson)             | Écart modèle/mesure                   | Documenter comme résultat scientifique ; tester un modèle alternatif (M/G/1)                   |
-| **Migration de l'UPF vers B pour le Run 2 réintroduit un bug déjà résolu sur A (PLMN, port GTP, endpoint réseau)** | **Run 2 retardé ou faussé** | **Rejouer la checklist de `docs/architecture/choix-deploiement-docker.md` sur la machine B avant la campagne de mesure ; documenter tout écart** |
+| Bug PFCP/hairpin NAT en architecture distribuée (résolu par abandon du Run 2) | Protocole de comparaison de topologie abandonné | Documenté comme résultat scientifique (cf. §5) ; dimensionnement validé sur Run 1 seul |
