@@ -1,4 +1,6 @@
 logger:
+  file:
+    path: /var/log/open5gs/upf.log
 global:
 upf:
   pfcp:
@@ -8,7 +10,10 @@ upf:
   gtpu:
     server:
       - address: 0.0.0.0
-        advertise: 100.82.162.11
+  metrics:
+    server:
+      - address: 0.0.0.0
+        port: 9090
   session:
     - subnet: 10.45.0.0/16
       gateway: 10.45.0.1

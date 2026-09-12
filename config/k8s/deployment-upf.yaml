@@ -22,6 +22,10 @@ spec:
           image: ghcr.io/borjis131/upf:v2.7.6
           command: ["/bin/bash", "/usr/local/bin/entrypoint.sh"]
           args: ["-c", "/etc/open5gs/custom/upf.yaml"]
+          ports:
+            - name: metrics
+              containerPort: 9090
+              protocol: TCP
           securityContext:
             capabilities:
               add: ["NET_ADMIN"]

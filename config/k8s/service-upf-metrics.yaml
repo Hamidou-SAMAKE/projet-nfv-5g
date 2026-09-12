@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: upf-metrics
+  namespace: nfv-5g
+  labels:
+    app: upf
+spec:
+  selector:
+    app: upf
+  ports:
+    - name: metrics
+      port: 9090
+      targetPort: 9090
+      protocol: TCP
