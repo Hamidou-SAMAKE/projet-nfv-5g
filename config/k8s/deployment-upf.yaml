@@ -15,14 +15,18 @@ spec:
       labels:
         app: upf
     spec:
-      hostNetwork: true
-      dnsPolicy: ClusterFirstWithHostNet
       containers:
         - name: upf
           image: ghcr.io/borjis131/upf:v2.7.6
           command: ["/bin/bash", "/usr/local/bin/entrypoint.sh"]
           args: ["-c", "/etc/open5gs/custom/upf.yaml"]
           ports:
+            - name: pfcp
+              containerPort: 8805
+              protocol: UDP
+            - name: gtpu
+              containerPort: 2152
+              protocol: UDP
             - name: metrics
               containerPort: 9090
               protocol: TCP
