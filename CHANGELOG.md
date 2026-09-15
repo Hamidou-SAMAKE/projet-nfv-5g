@@ -48,3 +48,7 @@ selon l'auteur — voir convention de commits dans le README.
 ## J20 (test iperf3 local)
 - [A] fix: iperf3 ne traite qu'un client à la fois par port — un port dédié par UE désormais utilisé (`03-generer-trafic-iperf3.sh`, `serveur-iperf3-machine-b.sh`), indispensable pour du trafic concurrent multi-UE
 - [A] chore: chaîne de mesure trafic validée en local (5 UE, 5 flux iperf3 concurrents réussis) ; test réel via Tailscale vers machine B en attente du serveur côté B
+
+## J28 (nettoyage post-Run2)
+- [A] fix: retrait des réglages restés actifs de l'investigation Run 2 sur la machine A - port SMF exposé sur l'IP Tailscale (docker-compose.yaml) et userland-proxy:false du démon Docker (/etc/docker/daemon.json) - environnement restauré à l'état validé au jalon J14
+- [A] chore: testbed re-validé après nettoyage (0% de perte, ping -I uesimtun0)
