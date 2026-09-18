@@ -1,89 +1,76 @@
 #!/usr/bin/env bash
 # scripts/mesures/03-generer-trafic-iperf3.sh
 #
-# Lance un client iperf3 depuis chaque tunnel UE actif (uesimtunN) vers un
-# serveur iperf3 cible sur la Machine B (via Tailscale) — génère du trafic
-# réel à travers les sessions PDU établies par 02-scenario-trafic.sh, et
-# enregistre les résultats (JSON) pour la modélisation (Étudiant B).
+# Lance un client iperf3 depuis chaque tunnel UE actif (uesimtunN), un par
+# tunnel en parallèle (un port dédié chacun), et enregistre les résultats
+# (JSON) pour la modélisation (Étudiant B).
 #
 # Paramètres :
-#   TARGET_IP   IP Tailscale du serveur iperf3 sur la Machine B
-#               (100.82.162.11 par défaut, cf. docs/cadrage/calibration-tailscale.md)
-#   DUREE       durée de chaque test iperf3, en secondes (20 par défaut)
+#   TARGET_IP   cible iperf3 (10.45.0.1 par défaut : interface ogstun de
+#               l'UPF elle-même, cf. scripts/mesures/serveur-iperf3-local.sh).
+#               Mettre TARGET_IP=100.82.162.11 pour cibler la Machine B via
+#               Tailscale à la place (cf. docs/cadrage/calibration-tailscale.md).
+#   DUREE       durée de chaque test iperf3, en secondes (5 par défaut)
 #
-# Prérequis : un serveur iperf3 actif sur la Machine B, cf.
-# scripts/mesures/serveur-iperf3-machine-b.sh (à exécuter sur la Machine B).
+# Prérequis : un serveur iperf3 actif sur la cible (par défaut,
+# scripts/mesures/serveur-iperf3-local.sh sur cette machine).
 #
 # Usage :
 #   bash scripts/mesures/03-generer-trafic-iperf3.sh
-#   TARGET_IP=100.82.162.11 DUREE=30 bash scripts/mesures/03-generer-trafic-iperf3.sh
+#   TARGET_IP=100.82.162.11 DUREE=20 bash scripts/mesures/03-generer-trafic-iperf3.sh
 
 set -euo pipefail
 
-TARGET_IP="${TARGET_IP:-100.82.162.11}"
-DUREE="${DUREE:-20}"
-BASE_PORT="${BASE_PORT:-5201}"
+TARGET_IP="${TARGET_IP:-10.45.0.1}"
+DUREE="${DUREE:-5}"
+BASE_PORT=5201
 
-PROJECT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-OUT_DIR="${PROJECT_ROOT}/modele/donnees/raw"
-TS="$(date +%Y%m%d-%H%M%S)"
-RUN_DIR="${OUT_DIR}/run-${TS}"
-mkdir -p "${RUN_DIR}"
-
-echo "==> [1/3] Vérification d'iperf3..."
-if ! command -v iperf3 &>/dev/null; then
-  sudo apt update && sudo apt install -y iperf3
-fi
-
-echo "==> [2/3] Vérification de la joignabilité du serveur cible (${TARGET_IP})..."
-if ! ping -c 2 -W 2 "${TARGET_IP}" > /dev/null 2>&1; then
-  echo "ATTENTION : ${TARGET_IP} ne répond pas au ping. Vérifiez que Tailscale"
-  echo "est actif et que le serveur iperf3 tourne sur la Machine B avant de continuer."
-fi
-
-echo "==> [3/3] Lancement d'un client iperf3 par tunnel UE actif (durée ${DUREE}s chacun)..."
-mapfile -t TUNNELS < <(ip -o addr show | awk '/uesimtun/ {print $2}' | sort -u)
-
-if [ "${#TUNNELS[@]}" -eq 0 ]; then
-  echo "Aucun tunnel uesimtunN actif. Lancez d'abord scripts/mesures/02-scenario-trafic.sh."
-  exit 1
-fi
-
-echo "    ${#TUNNELS[@]} tunnel(s) détecté(s) : ${TUNNELS[*]}"
-echo "    (un port dédié par tunnel, à partir de ${BASE_PORT} — iperf3 ne traite"
-echo "    qu'un client à la fois par port, indispensable pour du trafic concurrent)"
-
-PIDS=()
-port="${BASE_PORT}"
-for iface in "${TUNNELS[@]}"; do
-  local_ip="$(ip -o -4 addr show "${iface}" | awk '{print $4}' | cut -d/ -f1)"
-  if [ -z "${local_ip}" ]; then continue; fi
-  out_file="${RUN_DIR}/iperf3-${iface}.json"
-  echo "    ${iface} (${local_ip}) -> ${TARGET_IP}:${port} ..."
-  iperf3 -c "${TARGET_IP}" -p "${port}" -B "${local_ip}" -t "${DUREE}" -J > "${out_file}" 2> "${RUN_DIR}/iperf3-${iface}.err" &
-  PIDS+=("$!")
-  port=$(( port + 1 ))
+for cmd in iperf3 jq; do
+  if ! command -v "${cmd}" &>/dev/null; then
+    sudo apt update && sudo apt install -y "${cmd}"
+  fi
 done
 
-echo "    En attente de la fin des ${#PIDS[@]} tests (parallèles, ~${DUREE}s)..."
-wait "${PIDS[@]}" 2>/dev/null || true
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+OUT_DIR="${REPO_ROOT}/modele/donnees/raw/run-$(date +%Y%m%d-%H%M%S)"
+mkdir -p "${OUT_DIR}"
 
-cat <<EOF
+echo "==> [1/2] Recherche des tunnels UE actifs (uesimtun)..."
+TUNNELS=$(ip -o addr show | grep -oP 'uesimtun\d+' | sort -u || true)
 
-Résultats enregistrés dans : ${RUN_DIR}/
-  iperf3-uesimtunN.json   résultat structuré (débit, retransmissions...)
-  iperf3-uesimtunN.err    erreurs éventuelles (ex. serveur injoignable)
+if [ -z "${TUNNELS}" ]; then
+    echo "Erreur : aucun tunnel uesimtun détecté. Démarrez d'abord le scénario UE (02-scenario-trafic.sh)."
+    exit 1
+fi
 
-Résumé rapide des débits :
-EOF
-for f in "${RUN_DIR}"/iperf3-*.json; do
-  [ -s "$f" ] || continue
-  iface="$(basename "$f" .json)"
-  mbps="$(python3 -c "import json,sys
-try:
-    d=json.load(open('$f'))
-    print(round(d['end']['sum_received']['bits_per_second']/1e6,2))
-except Exception:
-    print('N/A')")"
-  echo "  ${iface} : ${mbps} Mbit/s"
+echo "==> [2/2] Lancement des clients iperf3 via les tunnels (durée ${DUREE}s)..."
+PORT=${BASE_PORT}
+PIDS=()
+
+for TUN in ${TUNNELS}; do
+    IP_LOCAL=$(ip -o -4 addr show dev "${TUN}" | awk '{print $4}' | cut -d/ -f1)
+    echo "    ${TUN} (${IP_LOCAL}) -> ${TARGET_IP}:${PORT} ..."
+    
+    iperf3 -c "${TARGET_IP}" -B "${IP_LOCAL}" -p "${PORT}" -t "${DUREE}" --json \
+        > "${OUT_DIR}/iperf3-${TUN}.json" 2> "${OUT_DIR}/iperf3-${TUN}.err" &
+    PIDS+=($!)
+    PORT=$((PORT + 1))
+done
+
+for PID in "${PIDS[@]}"; do
+    wait "${PID}" || true
+done
+
+echo ""
+echo "Résultats enregistrés dans : ${OUT_DIR}/"
+echo "Résumé rapide des débits :"
+for TUN in ${TUNNELS}; do
+    FILE="${OUT_DIR}/iperf3-${TUN}.json"
+    if [ -f "${FILE}" ] && grep -q '"bits_per_second"' "${FILE}"; then
+        BPS=$(jq -r '.end.sum_received.bits_per_second // .end.sum_sent.bits_per_second // 0' "${FILE}")
+        MBPS=$(awk -v bps="${BPS}" 'BEGIN {printf "%.2f", bps/1000000}')
+        echo "    iperf3-${TUN} : ${MBPS} Mbit/s"
+    else
+        echo "    iperf3-${TUN} : Échec (voir ${OUT_DIR}/iperf3-${TUN}.err)"
+    fi
 done
