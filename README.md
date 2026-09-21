@@ -68,5 +68,6 @@ Extraction de la contribution d'un membre : `git log --grep="\[A\]"` ou `git log
 
 ## Documentation
 
+- [Guide d'installation complet](INSTALLATION.md) — pour reproduire le testbed de zéro
 - [Note de cadrage](docs/cadrage/note-de-cadrage.md)
 - [Journal de bord](CHANGELOG.md)
