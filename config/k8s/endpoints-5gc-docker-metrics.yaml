@@ -1,0 +1,25 @@
+# GABARIT — ne pas appliquer tel quel.
+# TAILSCALE_IP_MACHINE_A est substitué par scripts/infra/appliquer-metriques-5gc-externe.sh
+# avec l'IP Tailscale réelle de la machine A (affichée en fin de
+# scripts/deploiement/06-exposer-metriques-tailscale.sh).
+#
+# Doit rester synchronisé avec service-5gc-docker-metrics.yaml : même nom,
+# même namespace, mêmes noms de ports.
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: 5gc-docker-metrics
+  namespace: nfv-5g
+subsets:
+  - addresses:
+      - ip: TAILSCALE_IP_MACHINE_A
+    ports:
+      - name: amf
+        port: 9091
+        protocol: TCP
+      - name: smf
+        port: 9092
+        protocol: TCP
+      - name: upf
+        port: 9093
+        protocol: TCP

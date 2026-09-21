@@ -1,0 +1,25 @@
+# Service SANS sélecteur : les endpoints ne sont pas découverts automatiquement
+# dans le cluster (comme pour upf-metrics/service-upf-metrics.yaml), ils sont
+# fournis manuellement par endpoints-5gc-docker-metrics.yaml, car la cible réelle
+# (AMF/SMF/UPF conteneurisés) tourne sur la machine A, hors du cluster K8s.
+#
+# À appliquer via scripts/infra/appliquer-metriques-5gc-externe.sh, pas
+# directement (voir endpoints-5gc-docker-metrics.yaml pour l'IP à injecter).
+apiVersion: v1
+kind: Service
+metadata:
+  name: 5gc-docker-metrics
+  namespace: nfv-5g
+  labels:
+    app: 5gc-docker
+spec:
+  ports:
+    - name: amf
+      port: 9091
+      protocol: TCP
+    - name: smf
+      port: 9092
+      protocol: TCP
+    - name: upf
+      port: 9093
+      protocol: TCP

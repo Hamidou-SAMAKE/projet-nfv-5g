@@ -1,0 +1,25 @@
+# Même schéma que servicemonitor-upf.yaml (kube-prometheus-stack, label
+# "release: prometheus" requis pour être sélectionné par le Prometheus déjà
+# déployé sur le cluster). Cible le Service sans sélecteur défini dans
+# service-5gc-docker-metrics.yaml.
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: 5gc-docker-metrics
+  namespace: monitoring
+  labels:
+    release: prometheus
+spec:
+  selector:
+    matchLabels:
+      app: 5gc-docker
+  namespaceSelector:
+    matchNames:
+      - nfv-5g
+  endpoints:
+    - port: amf
+      interval: 15s
+    - port: smf
+      interval: 15s
+    - port: upf
+      interval: 15s
