@@ -1,0 +1,16 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: '5gc-docker-local'
+    static_configs:
+      - targets: ['100.91.77.11:9091']
+        labels: { nf: amf }
+      - targets: ['100.91.77.11:9092']
+        labels: { nf: smf }
+      - targets: ['100.91.77.11:9093']
+        labels: { nf: upf }
+
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['cadvisor:8080']
